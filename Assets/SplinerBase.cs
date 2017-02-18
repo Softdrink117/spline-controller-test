@@ -41,6 +41,7 @@ namespace Softdrink{
 
 		private int gizmoDetail = 8;
 		private float gizmoSphereSize = 0.025f;
+		private bool drawTangentsUnselected = true;
 
 		[SerializeField]
 		[TooltipAttribute("What type of Segment is this? \nIsolated - no continuity (solitary Segment). \nStart Segment - continuity after, but not before, this Segment. \nEnd Segment - continuity before, but not after, this Segment. \nContinuous - continuity on both sides of this Segment.")]
@@ -81,29 +82,29 @@ namespace Softdrink{
 		}
 
 		public Vector3 Transformed(Vector3 input){
-			Vector3 output = new Vector3(input.x, input.y, input.z);
-			output += parent.position;
-			output = parent.rotation * output;
-			output = new Vector3(output.x * parent.lossyScale.x, output.y * parent.lossyScale.y, output.z * parent.lossyScale.z);
+			// Vector3 output = new Vector3(input.x, input.y, input.z);
+			// output += parent.position;
+			// output = parent.rotation * output;
+			// output = new Vector3(output.x * parent.lossyScale.x, output.y * parent.lossyScale.y, output.z * parent.lossyScale.z);
 
 			
 
-			return output;
-			//return parent.TransformPoint(input);
+			// return output;
+			return parent.TransformPoint(input);
 
 		}
 
 		public Vector3 InverseTransformed(Vector3 input){
-			Vector3 output = new Vector3(input.x, input.y, input.z);
-			output = new Vector3(output.x / parent.lossyScale.x, output.y / parent.lossyScale.y, output.z/parent.lossyScale.z);
-			//output = new Vector3(output.x / parent.rotation.x, output.y / parent.rotation.y, output.z / parent.rotation.z);
-			output = Quaternion.Inverse(parent.rotation) * output;
-			output -= parent.position;
+			//Vector3 output = new Vector3(input.x, input.y, input.z);
+			// output = new Vector3(output.x / parent.lossyScale.x, output.y / parent.lossyScale.y, output.z/parent.lossyScale.z);
+			// //output = new Vector3(output.x / parent.rotation.x, output.y / parent.rotation.y, output.z / parent.rotation.z);
+			// output = Quaternion.Inverse(parent.rotation) * output;
+			// output -= parent.position;
 
 			
 
-			return output;
-			//return parent.InverseTransformPoint(input);
+			// return output;
+			return parent.InverseTransformPoint(input);
 		}
 
 		public void DrawGizmos(){
@@ -111,8 +112,10 @@ namespace Softdrink{
 
 			if(IsValid()) {
 				Gizmos.color = Color.grey;
-				Gizmos.DrawLine(Transformed(startPoint), Transformed(startTangent));
-				Gizmos.DrawLine(Transformed(endPoint), Transformed(endTangent));
+				if(drawTangentsUnselected){
+					Gizmos.DrawLine(Transformed(startPoint), Transformed(startTangent));
+					Gizmos.DrawLine(Transformed(endPoint), Transformed(endTangent));
+				}
 				for(int i = 0; i < gizmoDetail; i++) {
 					Gizmos.DrawLine(GetPositionAt(((float)i)/(float)gizmoDetail),
 					                GetPositionAt(((float)(i+1))/(float)gizmoDetail));
@@ -218,6 +221,10 @@ namespace Softdrink{
 			gizmoSphereSize = input;
 		}
 
+		public void setDrawTangents(bool input){
+			drawTangentsUnselected = input;
+		}
+
 	}
 
 	public class SplinerBase : MonoBehaviour {
@@ -247,6 +254,10 @@ namespace Softdrink{
 		[Range(0.001f, 0.25f)]
 		[TooltipAttribute("The size of spheres to draw at start and end points of segments.")]
 		private float gizmoSphereSize = 0.025f;
+
+		[SerializeField]
+		[TooltipAttribute("Should Tangent lines be drawn in the Scene View when the Spline is not selected?")]
+		private bool drawUnselectedTangents = true;
 
 		void OnDrawGizmos() {
 			// Draw a larger sphere for the main Transform parent
@@ -305,6 +316,8 @@ namespace Softdrink{
 				splineSegments[i].SetGizmoDetail(gizmoDetail);
 				// Set the gizmo sphere size
 				splineSegments[i].setGizmoSphereSize(gizmoSphereSize);
+				// Set drawing of unselected tangents
+				splineSegments[i].setDrawTangents(drawUnselectedTangents);
 			}
 		}
 
@@ -429,6 +442,16 @@ namespace Softdrink{
 				}
 			}
 
+
+		}
+
+		// Evalute a 0...1 position along the total spline
+		public Vector3 Evaluate(float t){
+			if(t >= 1.0f) t = 1.0f;
+			if(t <= 0.0f) t = 0.0f;
+
+			t *= splineSegments.Length;
+			return splineSegments[0].GetPositionAt(t);
 
 		}
 
