@@ -8,6 +8,7 @@ namespace Softdrink{
 			PingPong,
 			Count,
 			Cycle,
+			CycleCount,
 
 			Manual,
 		}
@@ -21,7 +22,7 @@ namespace Softdrink{
 		[HeaderAttribute("Behavior")]
 
 		[SerializeField]
-		[TooltipAttribute("How does this Interpolator behave? \nForward Only - stops when reaching the end of the Spline. \nPingPong - Never stops; reverses direction when it reaches an endpoint. \nCount - increases by one each time it travels to an endpoint, and stops at a certain count. \nCycle - travels forward along the Spline until it reaches the end, then returns to the start point instantly.\nManual - Interpolation progress is controlled by another Script, using the Evaulate() method.")]
+		[TooltipAttribute("How does this Interpolator behave? \nForward Only - stops when reaching the end of the Spline. \nPingPong - Never stops; reverses direction when it reaches an endpoint. \nCount - increases by one each time it travels to an endpoint, and stops at a certain count. \nCycle - travels forward along the Spline until it reaches the end, then returns to the start point instantly. \nCycleCount - a combination of Cycle and Count modes. Performs a set number of Cycles. \nManual - Interpolation progress is controlled by another Script, using the Evaulate() method.")]
 		private SplinerInterpolationMode mode = SplinerInterpolationMode.ForwardOnly;
 
 		[SerializeField]
@@ -113,6 +114,10 @@ namespace Softdrink{
 				if(progress > 1.0f - endpointPrecision) return;
 			}
 
+			// If we have reached the final point in the Count, immediately exit
+			if(mode == SplinerInterpolationMode.Count && currentCount >= desiredCount) return;
+			if(mode == SplinerInterpolationMode.CycleCount && currentCount >= desiredCount) return;
+
 			// Update progress, factoring in Time.deltaTime in framerate-independent mode
 			if(frameBasedMovement) progress += step;
 			else progress += step * Time.deltaTime;
@@ -140,20 +145,23 @@ namespace Softdrink{
 
 		void TurnAround(){
 			// If we aren't in Cycles mode and Count is less than desired, reverse the direction of movement
-			if(mode != SplinerInterpolationMode.Cycle){
-				if(mode == SplinerInterpolationMode.Count && currentCount >= desiredCount) return;
-				else{
+			if(mode != SplinerInterpolationMode.Cycle && mode != SplinerInterpolationMode.CycleCount){
+				// if(mode == SplinerInterpolationMode.Count && currentCount >= desiredCount) return;
+				//else{
 					step *= -1f;			// Reverse direction
 					if(isMovingForwards) progress = 1.0f - endpointPrecision;
 					else progress = endpointPrecision;
-				}
+				//}
 			}
 
 			// Increment the count
 			currentCount++;
 
+			if(mode == SplinerInterpolationMode.Count && currentCount >= desiredCount) return;
+			if(mode == SplinerInterpolationMode.CycleCount && currentCount >= desiredCount) return;
+
 			// If we are in Cycles mode
-			if(mode == SplinerInterpolationMode.Cycle) progress = 0f;
+			if(mode == SplinerInterpolationMode.Cycle || mode == SplinerInterpolationMode.CycleCount) progress = 0f;
 		}
 
 		void OnValidate(){
