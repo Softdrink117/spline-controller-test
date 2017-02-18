@@ -70,7 +70,7 @@ namespace Softdrink{
 		private float endPoint = 1.0f;
 
 		[SerializeField]
-		[Range(0.00001f, 0.001f)]
+		[Range(0.00001f, 0.01f)]
 		[TooltipAttribute("At what distance from an end point is the Interpolator considered to have reached it, and it can turn around if desired?")]
 		private float endpointPrecision = 0.001f;
 
