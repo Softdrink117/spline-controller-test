@@ -108,10 +108,17 @@ namespace Softdrink{
 			// Immediatly exit if the mode is set to Manual
 			if(mode == SplinerInterpolationMode.Manual) return;
 
+			// If we are approximately at the end and in ForwardOnly mode, immediately exit
+			if(mode == SplinerInterpolationMode.ForwardOnly){
+				if(progress > 1.0f - endpointPrecision) return;
+			}
+
 			// Update progress, factoring in Time.deltaTime in framerate-independent mode
 			if(frameBasedMovement) progress += step;
 			else progress += step * Time.deltaTime;
 
+
+			
 
 			// Apply progress to the movement
 			if(!reverseDirection) Evaluate(progress);
