@@ -61,9 +61,9 @@ namespace Softdrink{
 
 		public Vector3 GetPositionAt(float t) {
 			if ((t < 0f) && (prev!=null) && prev.IsValid()) {
-				return Transformed(prev.GetPositionAt(t+1.0f));
+				return prev.GetPositionAt(t+1.0f);
 			} else if ((t > 1f) && (next!=null) && next.IsValid()) {
-				return Transformed(next.GetPositionAt(t-1.0f));
+				return next.GetPositionAt(t-1.0f);
 			} else if (IsValid()) {
 				float t2 = t*t;
 				float t3 = t2*t;
