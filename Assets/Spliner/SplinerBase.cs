@@ -260,6 +260,9 @@ namespace Softdrink{
 		private bool drawUnselectedTangents = true;
 
 		void OnDrawGizmos() {
+			// If the array doesn't exist, create it
+			if(splineSegments == null) ResetAllSegments();
+
 			// Draw a larger sphere for the main Transform parent
 			Gizmos.color = Color.grey;
 			Gizmos.DrawWireSphere(transform.position, gizmoSphereSize * 3f);
@@ -272,6 +275,9 @@ namespace Softdrink{
 		}
 
 		void OnDrawGizmosSelected() {
+			// If the array doesn't exist, create it
+			if(splineSegments == null) ResetAllSegments();
+
 			// Draw a larger sphere for the main Transform parent
 			Gizmos.color = Color.white;
 			Gizmos.DrawWireSphere(transform.position, gizmoSphereSize * 3f);
@@ -284,8 +290,9 @@ namespace Softdrink{
 
 		// Validate changes to the editor setup
 		void OnValidate(){
-			// If the array doesn't exist bail out
-			if(splineSegments == null) return;
+			// If the array doesn't exist, create it
+			if(splineSegments == null) ResetAllSegments();
+
 
 			UpdateSegments();
 		}
@@ -322,13 +329,15 @@ namespace Softdrink{
 		}
 
 		public void ResetAllSegments(){
-			for(int i = 0; i < splineSegments.Length; i++){
-				splineSegments[i].ResetSegment();
-				splineSegments[i].SetContinuity(enforceContinuousSpline);
-				splineSegments[i].SetSegmentStatus();
-			}
+			if(splineSegments != null){
+				for(int i = 0; i < splineSegments.Length; i++){
+					splineSegments[i].ResetSegment();
+					splineSegments[i].SetContinuity(enforceContinuousSpline);
+					splineSegments[i].SetSegmentStatus();
+				}
 
-			splineSegments = null;
+				splineSegments = null;
+			}
 
 			splineSegments = new SplineSection[1]; 
 			splineSegments[0] = new SplineSection(transform);

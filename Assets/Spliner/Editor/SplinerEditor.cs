@@ -49,67 +49,70 @@ namespace Softdrink{
 
 			index = 0;
 
-			// Index through and create handles for startPoint, startTangent, endPoint, endTangent
-			for(int i = 0; i < t.splineSegments.Length; i++){
+			if(t.splineSegments != null){
 
-				// Create handle for startPoint
-				if(t.splineSegments[i].prev == null || !t.enforceContinuousSpline){
+				// Index through and create handles for startPoint, startTangent, endPoint, endTangent
+				for(int i = 0; i < t.splineSegments.Length; i++){
 
-					handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].startPoint);
+					// Create handle for startPoint
+					if(t.splineSegments[i].prev == null || !t.enforceContinuousSpline){
+
+						handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].startPoint);
+						//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
+						handlePos = DrawPoint(handlePos, index);
+						t.splineSegments[i].startPoint = t.splineSegments[i].InverseTransformed(handlePos);
+
+						//t.splineSegments[i].startPoint = Handles.PositionHandle(t.splineSegments[i].startPoint, Quaternion.identity);
+					}
+					else if( i >= 1) t.splineSegments[i].startPoint = t.splineSegments[i-1].endPoint;
+
+					index++;
+				}
+
+				for(int i = 0; i < t.splineSegments.Length; i++){
+
+					// Create handle for startTangent
+					if(t.splineSegments[i].prev == null || !t.autoAlignTangents){
+
+						//handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].startTangent);
+						//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
+						handlePos = DrawPoint(handlePos, index);
+						//t.splineSegments[i].startTangent = t.splineSegments[i].InverseTransformed(handlePos);
+
+						//t.splineSegments[i].startTangent = Handles.PositionHandle(t.splineSegments[i].startTangent, Quaternion.identity);
+					}
+					else if(i >= 1) t.splineSegments[i].startTangent = t.splineSegments[i-1].endTangent;
+
+					index++;
+				}
+
+				for(int i = 0; i < t.splineSegments.Length; i++){
+
+					// Create handle for endPoint
+					handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].endPoint);
 					//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
 					handlePos = DrawPoint(handlePos, index);
-					t.splineSegments[i].startPoint = t.splineSegments[i].InverseTransformed(handlePos);
+					t.splineSegments[i].endPoint = t.splineSegments[i].InverseTransformed(handlePos);
 
-					//t.splineSegments[i].startPoint = Handles.PositionHandle(t.splineSegments[i].startPoint, Quaternion.identity);
+					index++;
+
 				}
-				else if( i >= 1) t.splineSegments[i].startPoint = t.splineSegments[i-1].endPoint;
 
-				index++;
-			}
+				for(int i = 0; i < t.splineSegments.Length; i++){
 
-			for(int i = 0; i < t.splineSegments.Length; i++){
+					//t.splineSegments[i].endPoint = Handles.PositionHandle(t.splineSegments[i].endPoint, Quaternion.identity);
 
-				// Create handle for startTangent
-				if(t.splineSegments[i].prev == null || !t.autoAlignTangents){
-
-					//handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].startTangent);
+					// Create handle for endTangent
+					handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].endTangent);
 					//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
 					handlePos = DrawPoint(handlePos, index);
-					//t.splineSegments[i].startTangent = t.splineSegments[i].InverseTransformed(handlePos);
+					t.splineSegments[i].endTangent = t.splineSegments[i].InverseTransformed(handlePos);
 
-					//t.splineSegments[i].startTangent = Handles.PositionHandle(t.splineSegments[i].startTangent, Quaternion.identity);
+					//t.splineSegments[i].endTangent = Handles.PositionHandle(t.splineSegments[i].endTangent, Quaternion.identity);
+
+					index++;
+
 				}
-				else if(i >= 1) t.splineSegments[i].startTangent = t.splineSegments[i-1].endTangent;
-
-				index++;
-			}
-
-			for(int i = 0; i < t.splineSegments.Length; i++){
-
-				// Create handle for endPoint
-				handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].endPoint);
-				//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
-				handlePos = DrawPoint(handlePos, index);
-				t.splineSegments[i].endPoint = t.splineSegments[i].InverseTransformed(handlePos);
-
-				index++;
-
-			}
-
-			for(int i = 0; i < t.splineSegments.Length; i++){
-
-				//t.splineSegments[i].endPoint = Handles.PositionHandle(t.splineSegments[i].endPoint, Quaternion.identity);
-
-				// Create handle for endTangent
-				handlePos = t.splineSegments[i].Transformed(t.splineSegments[i].endTangent);
-				//handlePos = Handles.PositionHandle(handlePos, Quaternion.identity);
-				handlePos = DrawPoint(handlePos, index);
-				t.splineSegments[i].endTangent = t.splineSegments[i].InverseTransformed(handlePos);
-
-				//t.splineSegments[i].endTangent = Handles.PositionHandle(t.splineSegments[i].endTangent, Quaternion.identity);
-
-				index++;
-
 			}
 
 			//EditorUtility.SetDirty(t);
